@@ -4,7 +4,7 @@
 <!-- 顶部开始 -->
         <div class="container">
             <div class="logo">
-                <a href="./index.html">X-admin v2.2</a></div>
+                <a href="./index.html">TMS</a></div>
             <div class="left_open">
                 <a><i title="展开左侧栏" class="iconfont">&#xe699;</i></a>
             </div>
@@ -33,7 +33,7 @@
             </ul>
             <ul class="layui-nav right" lay-filter="">
                 <li class="layui-nav-item">
-                    <a href="javascript:;">admin</a>
+                    <a href="javascript:;">{{ user.get_full_name }}</a>
                     <dl class="layui-nav-child">
                         <!-- 二级菜单 -->
                         <dd>
@@ -41,7 +41,7 @@
                         <dd>
                             <a onclick="xadmin.open('切换帐号','http://www.baidu.com')">切换帐号</a></dd>
                         <dd>
-                            <a href="./login.html">退出</a></dd>
+                            <a href="{% url 'tms:logout' %}">退出</a></dd>
                     </dl>
                 </li>
                 <li class="layui-nav-item to-index">
@@ -57,11 +57,11 @@
                     <li>
                         <a href="javascript:;">
                             <i class="iconfont left-nav-li" lay-tips="管理员管理">&#xe726;</i>
-                            <cite>管理员管理</cite>
+                            <cite>人员管理</cite>
                             <i class="iconfont nav_right">&#xe697;</i></a>
                         <ul class="sub-menu">
                             <li>
-                                <a onclick="xadmin.add_tab('管理员列表','{% url 'tms:welcome' %}')">
+                                <a onclick="xadmin.add_tab('人员列表','{% url 'tms:user_list' %}')">
                                     <i class="iconfont">&#xe6a7;</i>
                                     <cite>管理员列表</cite></a>
                             </li>
