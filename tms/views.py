@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
+from tms.forms import LineForm
 
 @login_required
 def index(request):
@@ -38,3 +39,19 @@ def user_logout(request):
 @login_required
 def user_list(request):
     return render(request, 'tms/user_list.html', {})
+
+@login_required
+def line_index(request):
+    return render(request, 'tms/line/index.html', {})
+
+@login_required
+def line_store(request):
+    if request.method == 'POST':
+        form = LineForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'code': 200, 'msg': '添加成功！'})
+        else:
+            print(form.errors)
+
+    return render(request, 'tms/line/store.html', {})
