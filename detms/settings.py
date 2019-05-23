@@ -130,3 +130,23 @@ STATICFILES_DIRS = [STATIC_DIR, ]
 # 未登录以及访问需要验证身份的页面时重定向的页面
 LOGIN_URL = '/tms/login/'
 LOGIN_REDIRECT_URL = '/tms/'
+
+# logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'D:/works/Python/detms/debug.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}

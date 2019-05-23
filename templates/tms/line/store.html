@@ -4,51 +4,55 @@
 {% block body_block %}
     <div class="layui-fluid">
         <div class="layui-row">
-            <form class="layui-form" action="{% url 'tms:line_store' %}">
-                {% csrf_token %}
-                <div class="layui-form-item">
-                    <label for="L_repass" class="layui-form-label"></label>
-                    <div class="layui-form-item x-city" id="start">
-                        <label class="layui-form-label">起始地</label>
-                        <div class="layui-input-inline">
-                            <select name="ori_province" lay-filter="province">
-                                <option value="">请选择省</option>
-                            </select>
-                        </div>
-                        <div class="layui-input-inline">
-                            <select name="ori_city" lay-filter="city">
-                                <option value="">请选择市</option>
-                            </select>
-                        </div>
-                        <div class="layui-input-inline">
-                            <select name="ori_area" lay-filter="area">
-                                <option value="">请选择县/区</option>
-                            </select>
-                        </div>
+            {% if line %}
+                <form class="layui-form" action="{% url 'tms:line_update' line.id %}">
+            {% else %}
+                <form class="layui-form" action="{% url 'tms:line_store' %}">
+            {% endif %}
+            {% csrf_token %}
+            <div class="layui-form-item">
+                <label for="L_repass" class="layui-form-label"></label>
+                <div class="layui-form-item x-city" id="start">
+                    <label class="layui-form-label">起始地</label>
+                    <div class="layui-input-inline">
+                        <select name="ori_province" lay-filter="province">
+                            <option value="">请选择省</option>
+                        </select>
                     </div>
-                    <div class="layui-form-item x-city" id="end">
-                        <label class="layui-form-label">目的地</label>
-                        <div class="layui-input-inline">
-                            <select name="des_province" lay-filter="province">
-                                <option value="">请选择省</option>
-                            </select>
-                        </div>
-                        <div class="layui-input-inline">
-                            <select name="des_city" lay-filter="city">
-                                <option value="">请选择市</option>
-                            </select>
-                        </div>
-                        <div class="layui-input-inline">
-                            <select name="des_area" lay-filter="area">
-                                <option value="">请选择县/区</option>
-                            </select>
-                        </div>
+                    <div class="layui-input-inline">
+                        <select name="ori_city" lay-filter="city">
+                            <option value="">请选择市</option>
+                        </select>
                     </div>
-                    <div class="layui-form-item">
-                        <label for="L_repass" class="layui-form-label"></label>
-                        <button class="layui-btn" lay-filter="add" lay-submit="">保存</button>
+                    <div class="layui-input-inline">
+                        <select name="ori_area" lay-filter="area">
+                            <option value="">请选择县/区</option>
+                        </select>
                     </div>
                 </div>
+                <div class="layui-form-item x-city" id="end">
+                    <label class="layui-form-label">目的地</label>
+                    <div class="layui-input-inline">
+                        <select name="des_province" lay-filter="province">
+                            <option value="">请选择省</option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <select name="des_city" lay-filter="city">
+                            <option value="">请选择市</option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <select name="des_area" lay-filter="area">
+                            <option value="">请选择县/区</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label for="L_repass" class="layui-form-label"></label>
+                    <button class="layui-btn" lay-filter="add" lay-submit="">保存</button>
+                </div>
+            </div>
             </form>
         </div>
     </div>
@@ -58,11 +62,13 @@
             form = layui.form;
 
             layui.code();
-
-            $('#start').xcity();
-
-            $('#end').xcity();
-
+            {% if line %}
+                $('#start').xcity('{{ line.ori_province_name }}', '{{ line.ori_city_name }}', '{{ line.ori_area_name }}');
+                $('#end').xcity('{{ line.des_province_name }}', '{{ line.des_city_name }}', '{{ line.des_area_name }}');
+            {% else %}
+                $('#start').xcity();
+                $('#end').xcity();
+            {% endif %}
         });
     </script>
     <script>layui.use(['form', 'layer'],
@@ -74,23 +80,78 @@
             //监听提交
             form.on('submit(add)',
                 function (data) {
-                    console.log(data);
+                    data.field.ori_province_name = $("select[name='ori_province']").find("option:selected").text();
+                    data.field.ori_city_name = $("select[name='ori_city']").find("option:selected").text();
+                    data.field.ori_area_name = $("select[name='ori_area']").find("option:selected").text();
+                    data.field.des_province_name = $("select[name='des_province']").find("option:selected").text();
+                    data.field.des_city_name = $("select[name='des_city']").find("option:selected").text();
+                    data.field.des_area_name = $("select[name='des_area']").find("option:selected").text();
+                    data.field.name = data.field.ori_area_name + '到' + data.field.des_area_name;
                     //发异步，把数据提交给php
                     var action = data.form.action;
-                    $.post(action, data.field, function (res) {
-                        if (res.code == 200) {
-                            layer.alert("增加成功", {
-                                    icon: 6
-                                },
-                                function () {
-                                    // 获得frame索引
-                                    var index = parent.layer.getFrameIndex(window.name);
-                                    //关闭当前frame
-                                    parent.layer.close(index);
-                                });
-                            return false;
-                        }
-                    });
+                    {% if line %}
+                        var csrftoken = $("input[name='csrfmiddlewaretoken']").val();
+
+                        $.ajax({
+                            type: 'PATCH',
+                            url: action,
+                            headers: {"X-CSRFtoken": csrftoken},
+                            data: data.field,
+                            success: function (res) {
+                                if (res.code == 200) {
+                                    layer.alert(res.msg, {
+                                            icon: 6
+                                        },
+                                        function () {
+                                            // 获得frame索引
+                                            var index = parent.layer.getFrameIndex(window.name);
+                                            //关闭当前frame
+                                            parent.layer.close(index);
+                                        });
+                                } else {
+                                    layer.alert(res.msg, {
+                                            icon: 5
+                                        },
+                                        function () {
+                                            var index = parent.layer.getFrameIndex(window.name);
+                                            //关闭当前frame
+                                            parent.layer.close(index);
+                                        });
+                                }
+                            }
+                        })
+                    {% else %}
+                        $.ajax({
+                            type: 'post',
+                            url: action,
+                            data: data.field,
+                            success: function (res) {
+                                if (res.code == 200) {
+                                    layer.alert(res.msg, {
+                                            icon: 6
+                                        },
+                                        function () {
+                                            // 获得frame索引
+                                            var index = parent.layer.getFrameIndex(window.name);
+                                            //刷新数据表格
+                                            parent.location.reload();
+                                            //关闭当前frame
+                                            parent.layer.close(index);
+                                        });
+                                } else {
+                                    layer.alert(res.msg, {
+                                            icon: 5
+                                        },
+                                        function () {
+                                            var index = parent.layer.getFrameIndex(window.name);
+                                            //关闭当前frame
+                                            parent.layer.close(index);
+                                        });
+                                }
+                            }
+                        })
+                    {% endif %}
+                    return false;
                 });
 
         });

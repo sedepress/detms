@@ -104,10 +104,6 @@ class Line(models.Model):
     des_area = models.PositiveIntegerField()
     des_area_name = models.CharField(max_length=50)
 
-    def save(self, *args, **kwargs):
-        self.name = self.ori_area_name + '到' + self.des_area_name
-        super(Line, self).save(*args, **kwargs)
-
 class ContractData(Base):
     contract = models.ForeignKey(Contract, on_delete=models.CASCADE)
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, blank=True)

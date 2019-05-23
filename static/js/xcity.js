@@ -72,15 +72,14 @@
 
     form.render('select');
 
-    form.on('select(ori_province)', function(data){
-        var pName = data.value;console.log(data)
+    form.on('select(province)', function(data){
+        var pName = $(data.elem).find("option:selected").text();
         $(data.elem).parents(".x-city").xcity(pName);
     });
 
-    form.on('select(ori_city)', function(data){
-        var cName = data.value;
-        var pName = $(data.elem).parents(".x-city").find('select[lay-filter=province]').val();
-        console.log(pName);
+    form.on('select(city)', function(data){
+        var cName = $(data.elem).find("option:selected").text();console.log(cName)
+        var pName = $(data.elem).parents(".x-city").find('select[lay-filter=province]').find("option:selected").text();
         $(data.elem).parents(".x-city").xcity(pName,cName);
     });
 
