@@ -104,6 +104,12 @@ class Line(models.Model):
     des_area = models.PositiveIntegerField()
     des_area_name = models.CharField(max_length=50)
 
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['-id']
+
 class ContractData(Base):
     contract = models.ForeignKey(Contract, on_delete=models.CASCADE)
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, blank=True)
@@ -132,3 +138,31 @@ class Area(models.Model):
 
     def __str__(self):
         return self.name
+
+class Sender(models.Model):
+    name = models.CharField(max_length=50)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    contact = models.CharField(max_length=50, blank=True)
+    phone = models.CharField(max_length=11, blank=True)
+    address = models.CharField(max_length=255, blank=True)
+    province = models.PositiveIntegerField()
+    city = models.PositiveIntegerField()
+    area = models.PositiveIntegerField()
+    if_default = models.BooleanField(default=False)
+    status = models.BooleanField(default=True)
+
+class Recipient(models.Model):
+    name = models.CharField(max_length=50)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    contact = models.CharField(max_length=50, blank=True)
+    phone = models.CharField(max_length=11, blank=True)
+    address = models.CharField(max_length=255, blank=True)
+    province = models.PositiveIntegerField()
+    city = models.PositiveIntegerField()
+    area = models.PositiveIntegerField()
+    if_default = models.BooleanField(default=False)
+    status = models.BooleanField(default=True)

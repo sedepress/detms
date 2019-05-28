@@ -47,12 +47,18 @@ def user_list(request):
 
 @login_required
 def line_index(request):
-    if request.method == 'GET':
-        lines = Line.objects.all()
-        page_lines = Paginator(lines, 10)
-        page = request.GET.get('page', 1)
-        data = page_lines.get_page(page)
-        return render(request, 'tms/line/index.html', {'data': data})
+    lines = Line.objects.all()
+
+    if request.method == 'POST':
+        name = request.POST.get('name', None)
+        if name:
+            lines = Line.objects.filter(name__contains=name)
+
+    page_lines = Paginator(lines, 10)
+    page = request.GET.get('page', 1)
+    data = page_lines.get_page(page)
+
+    return render(request, 'tms/line/index.html', {'data': data})
 
 @login_required
 def line_store(request):
@@ -91,3 +97,34 @@ def line_update(request, line_id):
 
 
     return render(request, 'tms/line/store.html', {'line': line})
+
+@login_required
+def line_delete(request, line_id):
+    if request.method == 'DELETE':
+        try:
+            line = Line.objects.get(id=line_id)
+        except Line.DoesNotExist:
+            return JsonResponse({'code': 500, 'msg': '系统异常！'})
+        line.delete()
+        return JsonResponse({'code': 200, 'msg': '删除线路成功！'})
+
+@login_required
+def consignment_index(request):
+    return render(request, 'tms/consignment/index.html', {})
+
+@login_required
+def consignment_store(request):
+    if request.method == 'POST':
+        form = LineForm(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data.get('name')
+            exist_line = Line.objects.filter(name=name)
+            if exist_line:
+                return JsonResponse({'code': 400, 'msg': '已存在相同线路！'})
+            form.save()
+            return JsonResponse({'code': 200, 'msg': '新增线路成功！'})
+        else:
+            logging.info(form.errors)
+            return JsonResponse({'code': 400, 'msg': '线路格式不符合规范！'})
+
+    return render(request, 'tms/consignment/store.html', {})
