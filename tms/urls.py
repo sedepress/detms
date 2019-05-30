@@ -1,8 +1,9 @@
 from django.urls import re_path
-from tms import views
+from tms import views, common
 
 app_name = 'tms'
 urlpatterns = [
+    re_path(r'^get_projects/$', common.get_projects, name='get_projects'),
     re_path(r'^login/$', views.user_login, name='login'),
     re_path(r'^welcome/$', views.welcome, name='welcome'),
     re_path(r'^logout/$', views.user_logout, name='logout'),

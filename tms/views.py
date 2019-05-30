@@ -5,10 +5,8 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.core.paginator import Paginator
 from tms.forms import LineForm
-from tms.models import Line
-from django.db import IntegrityError
+from tms.models import Line, Project, Customer
 import logging
-import pickle
 
 @login_required
 def index(request):
@@ -127,4 +125,7 @@ def consignment_store(request):
             logging.info(form.errors)
             return JsonResponse({'code': 400, 'msg': '线路格式不符合规范！'})
 
-    return render(request, 'tms/consignment/store.html', {})
+    projects = Project.objects.all()
+    customers = Customer.objects.all()
+
+    return render(request, 'tms/consignment/store.html', {'projects': projects, 'customers': customers})

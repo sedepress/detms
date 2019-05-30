@@ -11,23 +11,49 @@
             {% endif %}
             {% csrf_token %}
             <div class="layui-form-item">
-                <label for="username" class="layui-form-label">
-                    <span class="x-red">*</span>用户名</label>
+                <label class="layui-form-label">所属项目部</label>
                 <div class="layui-input-inline">
-                    <input type="text" id="username" name="username" required="" lay-verify="required"
-                           autocomplete="off" class="layui-input"></div>
-                <label for="username" class="layui-form-label">
-                    <span class="x-red">*</span>用户名</label>
+                    <select name="project" lay-verify="required" lay-search="">
+                        <option value="">直接选择或搜索选择</option>
+                        {% for project in projects %}
+                            <option value="{{ project.id }}">{{ project.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <label class="layui-form-label">所属客户</label>
                 <div class="layui-input-inline">
-                    <input type="text" id="username" name="username" required="" lay-verify="required"
-                           autocomplete="off" class="layui-input"></div>
+                    <select name="customer" lay-verify="required" lay-search="">
+                        <option value="">直接选择或搜索选择</option>
+                        {% for customer in customers %}
+                            <option value="{{ customer.id }}">{{ customer.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <label class="layui-form-label">下单日期</label>
+                <div class="layui-input-inline layui-show-xs-block">
+                    <input class="layui-input" placeholder="下单日期" name="order_date" id="order_date">
+                </div>
             </div>
             <div class="layui-form-item">
-                <label for="username" class="layui-form-label">
-                    <span class="x-red">*</span>收货人</label>
+                <label for="order_type" class="layui-form-label">订单类型</label>
                 <div class="layui-input-inline">
-                    <input type="text" id="username" name="username" required="" lay-verify="required"
-                           autocomplete="off" class="layui-input"></div>
+                    <select name="order_type" class="valid">
+                        <option value="general">普通</option>
+                        <option value="return">退货</option>
+                    </select>
+                </div>
+                <label class="layui-form-label">是否短驳</label>
+                <div class="layui-input-block">
+                    <input type="checkbox" checked="" name="open" lay-skin="switch" lay-filter="switchTest" lay-text="是|否">
+                </div>
+                <label for="trans_mode" class="layui-form-label">运输模式</label>
+                <div class="layui-input-inline">
+                    <select name="trans_mode" class="valid">
+                        <option value="whole">整车</option>
+                        <option value="lent">零担</option>
+                        <option value="special">专线</option>
+                    </select>
+                </div>
             </div>
             <div class="layui-form-item">
                 <label for="phone" class="layui-form-label">
@@ -88,10 +114,42 @@
             </form>
         </div>
     </div>
+    <script type="text/javascript" src="{% static 'lib/layui/layui.all.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/tableSelect.js' %}"></script>
+    <script>
+        var form = layui.form;
+        form.render();
+        var tableSelect = layui.tableSelect;
+        tableSelect.render({
+            elem: '#project',
+            checkedKey: 'id',
+            table: {
+                url: "{% url 'tms:get_projects' %}",
+                cols: [[
+                    {type: 'radio'},
+                    {field: 'id', title: 'ID'},
+                    {field: 'name', title: '项目部'},
+                ]]
+            },
+            done: function (elem, data) {
+                var NEWJSON = []
+                layui.each(data.data, function (index, item) {
+                    NEWJSON.push(item.name)
+                })
+                elem.val(NEWJSON.join(","))
+            }
+        })
+    </script>
     <script type="text/javascript" src="{% static 'js/xcity.js' %}"></script>
     <script>
-        layui.use(['form', 'code'], function () {
+        layui.use(['form', 'code', 'laydate'], function () {
+            var laydate = layui.laydate;
             form = layui.form;
+
+            //执行一个laydate实例
+            laydate.render({
+                elem: '#order_date' //指定元素
+            });
 
             layui.code();
             {% if line %}
